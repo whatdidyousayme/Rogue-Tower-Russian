@@ -7,6 +7,23 @@
 ![Мод](https://img.shields.io/badge/версия-1.0-blue)
 ![Лицензия](https://img.shields.io/badge/лицензия-MIT-green)
 ![BepInEx](https://img.shields.io/badge/BepInEx-5.4.x-orange)
+[![Скачать](https://img.shields.io/badge/скачать-Releases-brightgreen)](https://github.com/whatdidyousayme/Rogue-Tower-Russian/releases/latest)
+
+---
+
+## 📸 Скриншоты
+
+| Главное меню | Установщик |
+|---|---|
+| ![Главное меню](screenshots/main_menu.png) | ![Установщик](screenshots/installer_shot.png) |
+
+| Бестиарий | Режимы испытаний |
+|---|---|
+| ![Бестиарий](screenshots/bestiary.png) | ![Режимы испытаний](screenshots/trial_modes.png) |
+
+| Карточки улучшений в бою | |
+|---|---|
+| ![Карточки улучшений](screenshots/gameplay_towers.png) | |
 
 ---
 
@@ -24,7 +41,7 @@
 
 Самый простой способ — скачать готовый **установщик**:
 
-1. Скачайте `RogueTowerRussian_Installer.exe` со страницы **Releases** (или из папки `mod_installer/dist`).
+1. Скачайте `RogueTowerRussian_Installer.exe` со страницы [**Releases**](https://github.com/whatdidyousayme/Rogue-Tower-Russian/releases/latest) (или из папки `mod_installer/dist`).
 2. Запустите его — установщик сам найдёт папку игры (или укажите вручную).
 3. Нажмите **«Установить мод»**:
    - установит BepInEx, если его нет;
@@ -69,6 +86,41 @@ Rogue Tower/
 ├── icon.ico                    # иконка проекта
 └── changelog.txt               # история изменений
 ```
+
+---
+
+## 💬 Сообщить о проблеме
+
+Пользователи могут писать о проблемах мода прямо на GitHub — для этого есть
+раздел **Issues**:
+
+`https://github.com/whatdidyousayme/Rogue-Tower-Russian/issues`
+
+Описывая проблему, укажите: что случилось, где (экран), английский оригинал,
+версию игры и прикрепите скриншот.
+
+> ⚠️ Если Issues выключены — включите их: *Settings → General → Features → Issues*.
+
+---
+
+## 💬 Обсуждения (GitHub Discussions)
+
+Для вопросов и идей (не для багов) есть раздел **Discussions**:
+
+`https://github.com/whatdidyousayme/Rogue-Tower-Russian/discussions`
+
+---
+
+## 💝 Поддержать автора
+
+Мод бесплатный. Если перевод вам понравился — можно поблагодарить автора донатом
+(по желанию). Принимаю переводы через **СБП (Система быстрых платежей)** — просто
+отсканируйте QR-код в приложении своего банка.
+
+[![Поддержать автора](https://img.shields.io/badge/Поддержать%20автора-СБП-yellow)](ВАША_ССЫЛКА_НА_ДОНАТ)
+
+Это добровольное пожертвование: вы ничего не покупаете, никаких обязательств и
+встречных услуг нет.
 
 ---
 
