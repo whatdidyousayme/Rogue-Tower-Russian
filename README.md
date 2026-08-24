@@ -1,4 +1,4 @@
-# 🌐 Rogue Tower Russian — полный перевод мода
+# 🌐 Rogue Tower Russian — руссификатор
 
 Русская локализация для игры **Rogue Tower** (Steam, App ID `1843760`).
 
