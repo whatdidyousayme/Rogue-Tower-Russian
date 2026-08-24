@@ -1,0 +1,26 @@
+# --- Сборка / артефакты (не храним в git) ---
+dist/
+build/
+__pycache__/
+*.pyc
+
+# --- Бинарные результаты сборки (генерируются build_mod32.py / build_installer.py) ---
+bepinex_core.zip
+RogueTowerRussian.dll
+RogueTowerRussian_Installer.exe
+RogueTowerRussian_Installer.spec
+
+# --- Папки .venv / окружения ---
+.venv/
+venv/
+
+# --- Временные/превью картинки ---
+preview.png
+steam_header.jpg
+
+# --- Личные/локальные файлы (НЕ публикуем на GitHub) ---
+*.code-workspace
+README.txt
+Делаем новую версию перевода Rogue Tower.md
+Собрать всё.bat
+
