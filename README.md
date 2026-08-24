@@ -103,14 +103,6 @@ Rogue Tower/
 
 ---
 
-## 💬 Обсуждения (GitHub Discussions)
-
-Для вопросов и идей (не для багов) есть раздел **Discussions**:
-
-`https://github.com/whatdidyousayme/Rogue-Tower-Russian/discussions`
-
----
-
 ## 📝 Редактирование перевода
 
 - Словарь переводов лежит в `BepInEx\plugins\translations.json` — его можно править.
