@@ -18,6 +18,9 @@ venv/
 preview.png
 steam_header.jpg
 
+# --- Релизные архивы (создаются для GitHub Releases) ---
+RogueTowerRussian_v*.zip
+
 # --- Личные/локальные файлы (НЕ публикуем на GitHub) ---
 *.code-workspace
 README.txt
