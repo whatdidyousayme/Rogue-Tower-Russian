@@ -41,7 +41,7 @@
 
 Самый простой способ — скачать готовый **установщик**:
 
-1. Скачайте `RogueTowerRussian_Installer.exe` со страницы [**Releases**](https://github.com/whatdidyousayme/Rogue-Tower-Russian/releases/latest) (или из папки `mod_installer/dist`).
+1. Скачайте `RogueTowerRussian_Installer.exe` со страницы [**Releases**](https://github.com/whatdidyousayme/Rogue-Tower-Russian/releases/latest).
 2. Запустите его — установщик сам найдёт папку игры (или укажите вручную).
 3. Нажмите **«Установить мод»**:
    - установит BepInEx, если его нет;
