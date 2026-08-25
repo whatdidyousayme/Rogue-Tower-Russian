@@ -22,9 +22,13 @@ def main():
     icon_args = ['--icon', icon] if os.path.exists(icon) else []
 
     # Встроенный архив BepInEx (автономность: установка без интернета).
-    bep_zip = os.path.join(HERE, 'bepinex_core.zip')
+    bep_zip = None
+    for cand in (os.path.join(DIST, 'bepinex_core.zip'), os.path.join(HERE, 'bepinex_core.zip')):
+        if os.path.exists(cand):
+            bep_zip = cand
+            break
     add_data = []
-    if os.path.exists(bep_zip):
+    if bep_zip:
         # PyInstaller --add-data "src;dest" (на Windows разделитель ';').
         add_data = ['--add-data', bep_zip + ';.']
         print('  +  встраиваем BepInEx:', os.path.basename(bep_zip))
@@ -34,6 +38,23 @@ def main():
     if os.path.exists(ico):
         add_data = add_data + ['--add-data', ico + ';.']
         print('  +  встраиваем иконку окна:', os.path.basename(ico))
+
+    # Встраиваем файлы мода, чтобы установщик был полностью автономным (один .exe):
+    # пользователю не нужно держать dll/словарь/исходники рядом с установщиком.
+    mod_bundle = [
+        (os.path.join(PLUGINS, 'RogueTowerRussian.dll'), 'RogueTowerRussian.dll'),
+        (os.path.join(PLUGINS, 'translations.json'), 'translations.json'),
+    ]
+    # Исходники (открытость мода): ищем в mod_translator, затем в корне игры.
+    for f in ('TranslatorPlugin.cs', 'build_mod32.py', 'changelog.txt'):
+        src = next((x for x in (os.path.join(GAME, 'mod_translator', f), os.path.join(GAME, f))
+                    if os.path.exists(x)), None)
+        if src:
+            mod_bundle.append((src, f))
+    for src, _ in mod_bundle:
+        if os.path.exists(src):
+            add_data = add_data + ['--add-data', src + ';.']
+            print('  +  встраиваем файл мода:', os.path.basename(src))
 
     args = [
         sys.executable, '-m', 'PyInstaller',
@@ -77,12 +98,12 @@ def main():
             print(f'  + {f} (из корня)')
 
     # Встроенный BepInEx — дополнительно кладём рядом с .exe (на случай запуска без onefile).
-    if os.path.exists(bep_zip):
+    if bep_zip and os.path.abspath(bep_zip) != os.path.abspath(os.path.join(DIST, 'bepinex_core.zip')):
         shutil.copy2(bep_zip, os.path.join(DIST, 'bepinex_core.zip'))
         print('  + bepinex_core.zip (автономный BepInEx)')
 
     print('\nГотово. Установщик:', exe)
-    print('Файлы рядом с ним (нужны для установки): DLL + translations.json. BepInEx встроен.')
+    print('Установщик автономный: мод и BepInEx встроены в один .exe.')
     return True
 
 if __name__ == '__main__':

@@ -122,6 +122,26 @@ def find_window_icon():
     return None
 
 
+def resource_dirs():
+    """Каталоги, где ищем файлы мода: встроенные в .exe (onefile), рядом с exe, рядом со скриптом."""
+    dirs = []
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        dirs.append(meipass)
+    if getattr(sys, "frozen", False):
+        dirs.append(os.path.dirname(os.path.abspath(sys.executable)))
+    dirs.append(os.path.dirname(os.path.abspath(__file__)))
+    seen = set()
+    out = []
+    for d in dirs:
+        nd = os.path.normpath(d)
+        if nd not in seen:
+            seen.add(nd)
+            out.append(d)
+    return out
+
+
+
 class InstallerApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -435,15 +455,15 @@ class InstallerApp(tk.Tk):
             raise RuntimeError("BepInEx распакован, но BepInEx.dll не найден.")
 
     def _copy_mod(self, game_dir):
-        here = os.path.dirname(os.path.abspath(__file__))
         plugins_dir = os.path.join(game_dir, "BepInEx", "plugins")
         os.makedirs(plugins_dir, exist_ok=True)
         # Эталонная копия заводских файлов: позволяет вернуть исходную версию
         # после того, как пользователь изменит словарь.
         backup_dir = os.path.join(plugins_dir, "_backup")
         for f in MOD_FILES:
-            src = os.path.join(here, f)
-            if os.path.exists(src):
+            src = next((os.path.join(d, f) for d in resource_dirs()
+                        if os.path.exists(os.path.join(d, f))), None)
+            if src:
                 shutil.copy2(src, os.path.join(plugins_dir, f))
                 os.makedirs(backup_dir, exist_ok=True)
                 shutil.copy2(src, os.path.join(backup_dir, f))
@@ -451,12 +471,12 @@ class InstallerApp(tk.Tk):
                 print("Предупреждение: не найден файл мода", f)
 
     def _copy_sources(self, game_dir):
-        here = os.path.dirname(os.path.abspath(__file__))
         dest = os.path.join(game_dir, "RogueTowerRussian_sources")
         os.makedirs(dest, exist_ok=True)
         for f in SOURCE_FILES:
-            src = os.path.join(here, f)
-            if os.path.exists(src):
+            src = next((os.path.join(d, f) for d in resource_dirs()
+                        if os.path.exists(os.path.join(d, f))), None)
+            if src:
                 shutil.copy2(src, os.path.join(dest, f))
 
 
