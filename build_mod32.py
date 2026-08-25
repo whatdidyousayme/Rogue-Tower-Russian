@@ -6,7 +6,8 @@ import sys
 
 # Пути - используем 32-битный компилятор
 CSC = r'C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe'
-BASE = r'E:\SteamLibrary\steamapps\common\Rogue Tower'
+# Папка игры: берём из расположения скрипта (при необходимости — переменная окружения ROGUE_TOWER_DIR).
+BASE = os.environ.get('ROGUE_TOWER_DIR', os.path.dirname(os.path.abspath(__file__)))
 
 def main():
     print("=== Компиляция 32-битного мода Rogue Tower Russian ===\n")

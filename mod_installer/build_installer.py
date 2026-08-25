@@ -6,7 +6,8 @@ import sys
 import shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-GAME = r'e:\SteamLibrary\steamapps\common\Rogue Tower'
+# Папка игры = уровень выше mod_installer/ (при необходимости — переменная окружения ROGUE_TOWER_DIR).
+GAME = os.environ.get('ROGUE_TOWER_DIR', os.path.dirname(HERE))
 PLUGINS = os.path.join(GAME, 'BepInEx', 'plugins')
 DIST = os.path.join(HERE, 'dist')
 
