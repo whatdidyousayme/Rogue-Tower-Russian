@@ -19,4 +19,18 @@
 
 Чтобы удалить перевод, закройте игру и нажмите **«Удалить мод»** в установщике.
 
+## Скриншоты
+
+| Главное меню | Установщик |
+|---|---|
+| ![Главное меню](screenshots/main_menu.png) | ![Установщик](screenshots/installer_shot.png) |
+
+| Бестиарий | Режимы испытаний |
+|---|---|
+| ![Бестиарий](screenshots/bestiary.png) | ![Режимы испытаний](screenshots/trial_modes.png) |
+
+Карточки улучшений в бою:
+
+![Карточки улучшений в бою](screenshots/gameplay_towers.png)
+
 [Сообщить о проблеме](https://github.com/whatdidyousayme/Rogue-Tower-Russian/issues) · [Для разработчиков](DEVELOPMENT.md) · [Лицензия MIT](LICENSE)
