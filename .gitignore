@@ -21,6 +21,9 @@ steam_header.jpg
 # --- Релизные архивы (создаются для GitHub Releases) ---
 RogueTowerRussian_v*.zip
 release_notes.md
+Release/
+tools/update_installer.py
+tools/complete_dictionary.py
 
 # --- Личные/локальные файлы (НЕ публикуем на GitHub) ---
 *.code-workspace
