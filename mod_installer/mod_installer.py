@@ -15,7 +15,7 @@ import webbrowser
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
-MOD_VERSION = "1.2"
+MOD_VERSION = "1.3"
 AUTHOR_GITHUB = "https://github.com/whatdidyousayme"
 GAME_FOLDER_GUESSES = ["Rogue Tower"]
 BEPINEX_URL = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.3/BepInEx_win_x86_5.4.23.3.zip"

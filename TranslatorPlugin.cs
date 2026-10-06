@@ -12,10 +12,10 @@ using UnityEngine.UI;
 
 namespace RogueTowerRussian
 {
-    [BepInPlugin("com.rogueTower.russian", "Rogue Tower Russian Translator", "1.2.0")]
+    [BepInPlugin("com.rogueTower.russian", "Rogue Tower Russian Translator", "1.3.0")]
     public class TranslatorPlugin : BaseUnityPlugin
     {
-        public const string ModVersion = "1.2";
+        public const string ModVersion = "1.3";
         public static bool TranslationEnabled = true;
         private static TranslatorPlugin instance;
         private static TranslationCatalog catalog;
@@ -128,7 +128,7 @@ namespace RogueTowerRussian
             }
             // Update on every game assignment, including pooled cards and empty text.
             state.Original = original;
-            state.Translated = Translate(original);
+            state.Translated = TextLayout.IsLoadingText(owner as Text) ? TranslationCatalog.TranslateLoadingProgress(original) : Translate(original);
             ApplyFont(state, TranslationEnabled);
             layout.Apply(owner, TranslationEnabled ? state.Translated : original, scaleSetting.Value, TranslationEnabled, uiFont);
             return TranslationEnabled ? state.Translated : original;
@@ -152,7 +152,7 @@ namespace RogueTowerRussian
             Text ui = state.Owner as Text;
             TMP_Text tmp = state.Owner as TMP_Text;
             TextMesh mesh = state.Owner as TextMesh;
-            if (ui != null) ui.font = russian && uiFont != null ? uiFont : state.Font;
+            if (ui != null) ui.font = russian && uiFont != null && !TextLayout.IsWorldNumber(ui, state.Translated) ? uiFont : state.Font;
             // Preserve each TMP object's own font/material; add Cyrillic as fallback.
             if (tmp != null && russian && tmpFont != null && tmp.font != null && tmp.font != tmpFont)
             {
@@ -214,7 +214,7 @@ namespace RogueTowerRussian
             {
                 Scan();
                 File.WriteAllText(Path.Combine(Paths.ConfigPath, "RogueTowerRussian.layout.json"),
-                    JsonConvert.SerializeObject(layout.Inspect(FindObjectsOfType<Text>()), Formatting.Indented), System.Text.Encoding.UTF8);
+                    JsonConvert.SerializeObject(layout.Inspect(Resources.FindObjectsOfTypeAll<Text>()), Formatting.Indented), System.Text.Encoding.UTF8);
             }
             timer += Time.unscaledDeltaTime;
             if (timer < 0.5f) return;

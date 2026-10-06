@@ -26,6 +26,7 @@ class CheckTranslations {
             {"Chopping this tree will currently yield 41g.\nAnd, a 19% chance to drop cards.", "Вырубка принесёт 41 зол.\nШанс получить карты: 19%."},
             {"All enemies drop an additional 9 gold when they die.", "Дополнительное золото за гибель каждого врага: 9."},
             {"This house is protected by 6 towers.", "Количество башен, защищающих дом: 6."},
+            {"This house is protected by 1 towers.\nIts next gift will be 2g.\nNet gold gifted: 17g.", "Количество башен, защищающих дом: 1.\nСледующий подарок: 2 золота.\nВсего подарено: 17 золота."},
             {"Demolish (123g)", "Снести (123 зол.)"},
             {"Mana: 134/250 (+1.5/s)", "Мана: 134/250 (+1.5/с)"},
             {"Defended all 45 levels", "Отражены все 45 уровней"},
@@ -37,5 +38,12 @@ class CheckTranslations {
             if (got != samples[i,1]) throw new Exception(samples[i,0] + " => " + got + " expected " + samples[i,1]);
         }
         Console.WriteLine("Dynamic values and rich text checks passed.");
+        const string loading = "Loading...", translatedLoading = "Загрузка...";
+        for (int i = 0; i <= loading.Length; i++) {
+            string got = TranslationCatalog.TranslateLoadingProgress(loading.Substring(0, i));
+            if (!translatedLoading.StartsWith(got) || (i == loading.Length && got != translatedLoading))
+                throw new Exception("Loading animation translation failed at " + i);
+        }
+        Console.WriteLine("Loading animation prefixes passed.");
     }
 }

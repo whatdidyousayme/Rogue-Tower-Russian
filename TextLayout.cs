@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +17,8 @@ namespace RogueTowerRussian
         {
             public UnityEngine.Object Owner;
             public float Size, MinSize, MaxSize;
-            public Vector2 OriginalPreferred, RectSizeDelta;
+            public Vector2 OriginalPreferred, RectSizeDelta, AnchoredPosition, Pivot;
+            public TextAnchor Alignment;
             public bool BestFit, Wrap, Raycast;
             public HorizontalWrapMode Horizontal;
             public VerticalWrapMode Vertical;
@@ -40,6 +42,9 @@ namespace RogueTowerRussian
             {
                 e.Size = ui.fontSize;
                 e.RectSizeDelta = ui.rectTransform.sizeDelta;
+                e.AnchoredPosition = ui.rectTransform.anchoredPosition;
+                e.Pivot = ui.rectTransform.pivot;
+                e.Alignment = ui.alignment;
                 e.Raycast = ui.raycastTarget;
                 e.OriginalPreferred = new Vector2(ui.preferredWidth, ui.preferredHeight);
                 e.MinSize = ui.resizeTextMinSize;
@@ -80,6 +85,9 @@ namespace RogueTowerRussian
                 if (ui != null)
                 {
                     ui.rectTransform.sizeDelta = e.RectSizeDelta;
+                    ui.rectTransform.pivot = e.Pivot;
+                    ui.rectTransform.anchoredPosition = e.AnchoredPosition;
+                    ui.alignment = e.Alignment;
                     ui.raycastTarget = e.Raycast;
                     ui.fontSize = (int)e.Size;
                     ui.resizeTextForBestFit = e.BestFit;
@@ -110,6 +118,17 @@ namespace RogueTowerRussian
 
             if (ui != null)
             {
+                // Placement bonuses and damage numbers intentionally overflow
+                // tiny rects and render above terrain. Keep their game material.
+                if (IsWorldNumber(ui, text))
+                {
+                    ui.material = e.OriginalMaterial;
+                    ui.resizeTextForBestFit = false;
+                    ui.horizontalOverflow = HorizontalWrapMode.Overflow;
+                    ui.verticalOverflow = VerticalWrapMode.Overflow;
+                    ui.fontSize = Math.Max(1, Mathf.RoundToInt(e.Size * scale));
+                    return;
+                }
                 // OS fonts use GUI/Text Shader by default, which renders through
                 // terrain. UI/Default respects the world canvas depth and masks.
                 bool usesRussianFont = russianFont != null && ui.font == russianFont;
@@ -126,6 +145,9 @@ namespace RogueTowerRussian
                 }
                 else ui.material = e.OriginalMaterial;
                 bool terrainLetter = IsTerrainLetter(ui);
+                bool loading = IsLoadingText(ui);
+                bool tip = IsLoadingTip(ui);
+                bool buff = HasAncestor(ui.transform, "MonsterBuffs");
                 if (terrainLetter)
                 {
                     ui.raycastTarget = false;
@@ -134,21 +156,36 @@ namespace RogueTowerRussian
                     // overflowing line which extends beyond the terrain.
                     ui.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1600);
                     ui.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 1600);
+                    // The original letter starts near a tile edge. A square
+                    // centred there still sticks out: centre it under the tile.
+                    ui.rectTransform.anchoredPosition = Vector2.zero;
                     ui.horizontalOverflow = HorizontalWrapMode.Wrap;
+                }
+                else if (loading || tip || buff)
+                {
+                    Vector2 allocation = FreeLabelBounds(ui, loading, tip);
+                    ui.rectTransform.pivot = buff ? new Vector2(0, 0.5f) : new Vector2(0.5f, 0.5f);
+                    ui.rectTransform.anchoredPosition = buff ? e.AnchoredPosition + new Vector2(4, 0) :
+                        new Vector2(0, tip ? e.AnchoredPosition.y * 1.6f : e.AnchoredPosition.y);
+                    ui.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, allocation.x);
+                    ui.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, allocation.y);
+                    ui.alignment = buff ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;
                 }
                 Vector2 bounds = AvailableBounds(ui);
                 if (bounds.x < 1 || bounds.y < 1) return;
                 if (e.LastText == text && e.LastBounds == bounds && Mathf.Abs(e.LastScale - scale) < 0.001f) return;
                 e.LastText = text; e.LastBounds = bounds; e.LastScale = scale;
                 ui.resizeTextForBestFit = false;
-                ui.horizontalOverflow = terrainLetter ? HorizontalWrapMode.Wrap : e.Horizontal;
+                bool panelDescription = ui.name == "test" && ui.transform.parent != null && ui.transform.parent.name == "Panel";
+                ui.horizontalOverflow = terrainLetter || tip || panelDescription ? HorizontalWrapMode.Wrap : e.Horizontal;
                 ui.verticalOverflow = terrainLetter ? VerticalWrapMode.Truncate : VerticalWrapMode.Overflow;
                 int desired = Math.Max(1, Mathf.RoundToInt(e.Size * scale));
                 int low = 1, high = desired;
                 while (low < high)
                 {
                     int candidate = (low + high + 1) / 2;
-                    if (Fits(ui, text, candidate, bounds)) low = candidate;
+                    // Fit the completed word once, not each changing prefix.
+                    if (Fits(ui, loading ? "Загрузка..." : text, candidate, bounds)) low = candidate;
                     else high = candidate - 1;
                 }
                 ui.fontSize = low >= 40 ? low - low % 4 : low;
@@ -185,6 +222,42 @@ namespace RogueTowerRussian
             return ui.name == "Text" && parent != null && parent.name == "Canvas" && parent.parent != null && parent.parent.name == "MainTower";
         }
 
+        internal static bool HasAncestor(Transform child, string name)
+        {
+            for (Transform t = child; t != null; t = t.parent)
+                if (t.name == name || t.name == name + "(Clone)") return true;
+            return false;
+        }
+
+        internal static bool IsLoadingText(Text ui)
+        {
+            return ui != null && ui.name == "Text" && HasAncestor(ui.transform, "LevelLoader");
+        }
+
+        private static bool IsLoadingTip(Text ui)
+        {
+            return ui.name == "TipText" && HasAncestor(ui.transform, "LevelLoader");
+        }
+
+        internal static bool IsWorldNumber(Text ui, string text)
+        {
+            if (ui == null || ui.canvas == null || ui.canvas.renderMode != RenderMode.WorldSpace) return false;
+            return HasAncestor(ui.transform, "BuildingGhost") || HasAncestor(ui.transform, "DamageNumber") ||
+                Regex.IsMatch(Regex.Replace(text ?? "", @"<[^>]+>", "").Trim(), @"^[+-]?\d+(?:[.,]\d+)?%?$");
+        }
+
+        private static Vector2 FreeLabelBounds(Text ui, bool loading, bool tip)
+        {
+            if (!loading && !tip) return new Vector2(2400, 600);
+            RectTransform rect = ui.rectTransform;
+            Camera camera = ui.canvas != null && ui.canvas.renderMode != RenderMode.ScreenSpaceOverlay ? ui.canvas.worldCamera : null;
+            Vector2 origin = RectTransformUtility.WorldToScreenPoint(camera, rect.TransformPoint(Vector3.zero));
+            float sx = (RectTransformUtility.WorldToScreenPoint(camera, rect.TransformPoint(Vector3.right)) - origin).magnitude;
+            float sy = (RectTransformUtility.WorldToScreenPoint(camera, rect.TransformPoint(Vector3.up)) - origin).magnitude;
+            return new Vector2(Screen.width * 0.8f / Mathf.Max(0.001f, sx),
+                Screen.height * (tip ? 0.07f : 0.2f) / Mathf.Max(0.001f, sy));
+        }
+
         private bool Fits(Text ui, string text, int size, Vector2 bounds)
         {
             TextGenerationSettings settings = ui.GetGenerationSettings(bounds);
@@ -197,7 +270,7 @@ namespace RogueTowerRussian
             settings.resizeTextForBestFit = false;
             settings.verticalOverflow = VerticalWrapMode.Overflow;
             float pixels = ui.pixelsPerUnit;
-            if (ui.horizontalOverflow == HorizontalWrapMode.Overflow || ((text ?? "").Contains("\n") && !IsTerrainLetter(ui)))
+            if (ui.horizontalOverflow == HorizontalWrapMode.Overflow)
             {
                 foreach (string line in (text ?? "").Split('\n'))
                     if (measure.GetPreferredWidth(line, settings) * ratio / pixels > bounds.x) return false;
@@ -209,13 +282,17 @@ namespace RogueTowerRussian
         {
             RectTransform rect = ui.rectTransform;
             Vector2 size = rect.rect.size;
+            bool panelDescription = ui.name == "test" && ui.transform.parent != null && ui.transform.parent.name == "Panel";
+            bool overflowing = ui.horizontalOverflow == HorizontalWrapMode.Overflow || panelDescription;
+            if (IsLoadingText(ui) || IsLoadingTip(ui) || HasAncestor(ui.transform, "MonsterBuffs"))
+                return new Vector2(Mathf.Max(1, size.x - 4), Mathf.Max(1, size.y - 2));
             // Rogue Tower deliberately gives overflowing text a tiny scaled
             // rect (e.g. 160x30 at scale 0.1 inside a 160x30 button).
             // Its actual allocation is the parent background, in text-local units.
             RectTransform panel = rect.parent as RectTransform;
             while (panel != null && panel.GetComponent<Image>() == null && panel.GetComponent<Canvas>() == null)
                 panel = panel.parent as RectTransform;
-            if (panel != null && panel.GetComponent<Image>() != null && ui.horizontalOverflow == HorizontalWrapMode.Overflow)
+            if (panel != null && panel.GetComponent<Image>() != null && overflowing)
             {
                 Vector3[] panelCorners = new Vector3[4];
                 panel.GetWorldCorners(panelCorners);
@@ -229,7 +306,7 @@ namespace RogueTowerRussian
                 float h = anchor / 3 == 0 ? y - lower.y : anchor / 3 == 1 ? 2 * Mathf.Min(y - lower.y, upper.y - y) : upper.y - y;
                 size = new Vector2(w > 8 ? w * 0.94f : size.x, h > 8 ? h * 0.9f : size.y);
             }
-            else if (ui.horizontalOverflow == HorizontalWrapMode.Overflow)
+            else if (overflowing)
             {
                 Entry entry;
                 if (entries.TryGetValue(ui.GetInstanceID(), out entry))
@@ -324,6 +401,9 @@ namespace RogueTowerRussian
                     {"texture", ui.mainTexture != null ? ui.mainTexture.name + " " + ui.mainTexture.width + "x" + ui.mainTexture.height : "none"},
                     {"fontTexture", ui.font != null && ui.font.material != null && ui.font.material.mainTexture != null ? ui.font.material.mainTexture.name + " " + ui.font.material.mainTexture.width + "x" + ui.font.material.mainTexture.height : "none"},
                     {"localScale", ui.transform.localScale.ToString()},
+                    {"rect", ui.rectTransform.rect.size.ToString()},
+                    {"anchoredPosition", ui.rectTransform.anchoredPosition.ToString()},
+                    {"originalSize", entries.ContainsKey(ui.GetInstanceID()) ? entries[ui.GetInstanceID()].Size : ui.fontSize},
                     {"canvas", ui.canvas != null ? ui.canvas.renderMode.ToString() : "none"},
                     {"shader", ui.material != null && ui.material.shader != null ? ui.material.shader.name : "none"}
                 });

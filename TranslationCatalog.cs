@@ -51,7 +51,9 @@ namespace RogueTowerRussian
             special = Regex.Replace(special, @"This house is protected by (\d+) towers?\.", "Количество башен, защищающих дом: $1.", RegexOptions.IgnoreCase);
             special = Regex.Replace(special, @"New (single|double|triple|quadruple) defense record!\s*\+(\d+) bonus xp", m =>
                 "Новый рекорд " + new Dictionary<string,string> {{"single","одиночной"},{"double","двойной"},{"triple","тройной"},{"quadruple","четверной"}}[m.Groups[1].Value.ToLowerInvariant()] + " обороны!\n+" + m.Groups[2].Value + " бонусного опыта", RegexOptions.IgnoreCase);
-            if (special != input) return special;
+            // Continue translating remaining lines after matching a dynamic
+            // sentence, e.g. a house tooltip also contains gift amounts.
+            input = special;
             if (templates.TryGetValue(Skeleton(input), out result))
             {
                 var values = Numbers.Matches(input).Cast<Match>().Select(m => m.Value).ToArray();
@@ -72,6 +74,14 @@ namespace RogueTowerRussian
         private static string PreservePadding(string original, string translated)
         {
             return Regex.Match(original, @"^\s*").Value + translated.Trim() + Regex.Match(original, @"\s*$").Value;
+        }
+
+        public static string TranslateLoadingProgress(string input)
+        {
+            const string english = "Loading...", russian = "Загрузка...";
+            if (input == null || !english.StartsWith(input, StringComparison.Ordinal)) return input;
+            int count = (int)Math.Round((double)input.Length * russian.Length / english.Length);
+            return russian.Substring(0, Math.Min(count, russian.Length));
         }
     }
 }

@@ -1,10 +1,10 @@
-# Rogue Tower Russian 1.2
+# Rogue Tower Russian 1.3
 
 Перевод Rogue Tower на русский язык: меню, карточки, улучшения, бестиарий, подсказки и статистика. Для Steam-версии игры 1.3.2.0 на Windows.
 
 ## Как установить
 
-1. [Скачайте архив установщика](https://github.com/whatdidyousayme/Rogue-Tower-Russian/releases/download/v1.2/Translate.Rogue.Tower.v.1.2.zip) и распакуйте его.
+1. [Скачайте архив установщика](https://github.com/whatdidyousayme/Rogue-Tower-Russian/releases/download/v1.3/Translate.Rogue.Tower.v.1.3.zip) и распакуйте его.
 2. Закройте игру и запустите **RogueTowerRussian_Installer.exe**.
 3. Выберите папку с **Rogue Tower.exe** и нажмите **«Установить мод»**.
 4. Запустите игру через Steam — перевод включится автоматически.

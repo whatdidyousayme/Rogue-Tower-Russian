@@ -1,4 +1,4 @@
-ROGUE TOWER RUSSIAN 1.2
+ROGUE TOWER RUSSIAN 1.3
 
 Перевод игры Rogue Tower на русский язык.
 
