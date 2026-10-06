@@ -31,6 +31,7 @@ def main():
         '--icon', str(ROOT / 'icon.ico'), '--add-data', str(payload) + ';payload',
         '--distpath', str(HERE / 'dist'), '--workpath', str(HERE / 'build'),
         '--specpath', str(HERE), str(HERE / 'mod_installer.py')], check=True)
+    shutil.copy2(HERE / 'INSTALLATION.txt', HERE / 'dist/README.txt')
     print('Installer:', HERE / 'dist/RogueTowerRussian_Installer.exe')
 
 if __name__ == '__main__':

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Rogue Tower Russian — установщик мода v1.2.
+Rogue Tower Russian — установщик мода v1.3.
 Одиночная игра без обновлений: если игра обновится, накатите мод заново.
 """
 import os
 import sys
-import shutil
 import threading
 import queue
 from install_core import install, uninstall, restore_catalog, bepinex_ready, payload_dir
-import zipfile
 import re
 import webbrowser
 import tkinter as tk
@@ -18,14 +16,9 @@ from tkinter import ttk, filedialog, messagebox
 MOD_VERSION = "1.3"
 AUTHOR_GITHUB = "https://github.com/whatdidyousayme"
 GAME_FOLDER_GUESSES = ["Rogue Tower"]
-BEPINEX_URL = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.3/BepInEx_win_x86_5.4.23.3.zip"
 # Целевая версия игры, на которую рассчитан мод (для проверки совместимости).
 GAME_VERSION_TARGET = "1.3.2.0"
 
-# Файлы мода, которые доставляем в BepInEx\\plugins.
-MOD_FILES = ["RogueTowerRussian.dll", "translations.json"]
-# Исходники (открытость мода) — копируются в отдельную папку.
-SOURCE_FILES = ["TranslatorPlugin.cs", "build_mod32.py", "changelog.txt"]
 
 
 def detect_game_version(game_dir):
@@ -127,7 +120,7 @@ def find_window_icon():
     meipass = getattr(sys, "_MEIPASS", None)
     if meipass:
         candidates.append(os.path.join(meipass, "payload", "icon.ico"))
-    candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.ico"))
+    candidates.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "icon.ico"))
     for p in candidates:
         if os.path.exists(p):
             return p
